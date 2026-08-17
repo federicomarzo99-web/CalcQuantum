@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calcolatore Interesse Composto — Gratis</title>
+  <meta name="description" content="Calcola gratuitamente quanto può crescere il tuo capitale con l'interesse composto. Inserisci capitale iniziale, versamenti, rendimento e durata.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://example.com/calcolatore-interesse-composto">
+  <meta property="og:title" content="Calcolatore Interesse Composto">
+  <meta property="og:description" content="Scopri come può crescere il tuo capitale nel tempo grazie all'interesse composto.">
+  <meta property="og:type" content="website">
+  <style>
+    :root{--bg:#f6f7f9;--card:#fff;--text:#17191c;--muted:#68707a;--border:#dfe3e8;--accent:#111827;--good:#087443}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    .wrap{max-width:1000px;margin:auto;padding:32px 18px 60px}
+    header{margin-bottom:26px}
+    h1{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:0 0 10px;letter-spacing:-1.5px}
+    .sub{color:var(--muted);max-width:680px;font-size:17px}
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 5px 20px rgba(0,0,0,.04)}
+    label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
+    .field{margin-bottom:16px}
+    input,select{width:100%;padding:12px 13px;border:1px solid #cdd3da;border-radius:10px;font-size:16px;background:#fff;color:var(--text)}
+    input:focus,select:focus{outline:2px solid #9ca3af;outline-offset:1px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .result{font-size:clamp(32px,6vw,52px);font-weight:800;letter-spacing:-2px;margin:4px 0}
+    .result-label{color:var(--muted);font-size:14px}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+    .stat{padding:14px;background:#f8f9fb;border:1px solid var(--border);border-radius:12px}
+    .stat b{display:block;font-size:20px}
+    .stat span{color:var(--muted);font-size:12px}
+    .chart{height:230px;display:flex;align-items:flex-end;gap:4px;border-bottom:1px solid var(--border);padding:20px 0 0}
+    .bar{flex:1;min-width:2px;background:#111827;border-radius:4px 4px 0 0;opacity:.82}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+    button{border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 14px;border-radius:9px;font-weight:700;cursor:pointer}
+    button.primary{background:#111827;color:#fff;border-color:#111827}
+    button:hover{transform:translateY(-1px)}
+    .note,.formula{font-size:13px;color:var(--muted)}
+    section{margin-top:18px}
+    h2{font-size:22px;margin:0 0 12px}
+    details{border-top:1px solid var(--border);padding:13px 0}
+    summary{cursor:pointer;font-weight:700}
+    footer{margin-top:30px;color:var(--muted);font-size:12px;text-align:center}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.card{padding:18px}.stats{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Calcolatore interesse composto</h1>
+    <p class="sub">Scopri quanto potrebbe crescere il tuo capitale nel tempo considerando capitale iniziale, versamenti periodici, rendimento e durata.</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="field">
+        <label for="initial">Capitale iniziale (€)</label>
+        <input id="initial" type="number" min="0" step="100" value="10000">
+      </div>
+      <div class="field">
+        <label for="contribution">Versamento periodico (€)</label>
+        <input id="contribution" type="number" min="0" step="10" value="300">
+      </div>
+      <div class="field">
+        <label for="frequency">Frequenza versamento</label>
+        <select id="frequency">
+          <option value="12">Mensile</option>
+          <option value="4">Trimestrale</option>
+          <option value="1">Annuale</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="rate">Rendimento annuo (%)</label>
+          <input id="rate" type="number" step="0.1" value="7">
+        </div>
+        <div class="field">
+          <label for="years">Anni</label>
+          <input id="years" type="number" min="1" max="100" step="1" value="20">
+        </div>
+      </div>
+      <div class="field">
+        <label for="compound">Capitalizzazione</label>
+        <select id="compound">
+          <option value="12">Mensile</option>
+          <option value="4">Trimestrale</option>
+          <option value="1">Annuale</option>
+        </select>
+      </div>
+      <p class="note">Il calcolo è una simulazione matematica e non considera tasse, costi, inflazione o variazioni future del rendimento.</p>
+      <div class="actions">
+        <button class="primary" onclick="calculate()">Calcola</button>
+        <button onclick="resetCalc()">Ripristina</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="result-label">Capitale finale stimato</div>
+      <div id="final" class="result">€0</div>
+      <div class="stats">
+        <div class="stat"><b id="invested">€0</b><span>Totale versato</span></div>
+        <div class="stat"><b id="interest">€0</b><span>Interessi generati</span></div>
+        <div class="stat"><b id="multiple">0×</b><span>Moltiplicatore del capitale</span></div>
+        <div class="stat"><b id="annualized">0%</b><span>Rendimento annuo inserito</span></div>
+      </div>
+      <div id="chart" class="chart" aria-label="Grafico crescita del capitale"></div>
+      <p class="formula">Formula base: capitale × (1 + rendimento)^tempo, integrata con i versamenti periodici.</p>
+      <div class="actions">
+        <button onclick="copyResult()">Copia risultato</button>
+        <button onclick="shareResult()">Condividi</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>Come funziona l'interesse composto?</h2>
+    <p>L'interesse composto reinveste i rendimenti prodotti dal capitale. Nel tempo, quindi, anche i rendimenti precedenti possono generare ulteriori rendimenti. La durata dell'investimento può avere un impatto molto significativo sul risultato finale.</p>
+  </section>
+
+  <section class="card">
+    <h2>Domande frequenti</h2>
+    <details><summary>Che rendimento devo inserire?</summary><p>Inserisci un rendimento medio annuo ipotetico. Il rendimento reale di un investimento può variare e non è garantito.</p></details>
+    <details><summary>Il calcolatore considera l'inflazione?</summary><p>No. Il risultato è nominale. Per stimare il potere d'acquisto futuro occorre considerare anche l'inflazione.</p></details>
+    <details><summary>Considera tasse e commissioni?</summary><p>No. Questa versione è intenzionalmente semplice e serve come stima matematica di base.</p></details>
+    <details><summary>I versamenti sono inclusi?</summary><p>Sì. Puoi specificare importo e frequenza dei versamenti periodici.</p></details>
+  </section>
+
+  <footer>Strumento gratuito. Nessun account richiesto. I calcoli vengono eseguiti localmente nel browser.</footer>
+</main>
+
+<script>
+const euro = n => new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+
+function calculate(){
+  const initial = Math.max(0, Number(document.getElementById('initial').value)||0);
+  const contribution = Math.max(0, Number(document.getElementById('contribution').value)||0);
+  const freq = Number(document.getElementById('frequency').value);
+  const rate = Number(document.getElementById('rate').value)||0;
+  const years = Math.max(1, Number(document.getElementById('years').value)||1);
+  const compound = Number(document.getElementById('compound').value);
+
+  const periods = years * compound;
+  const periodicRate = rate / 100 / compound;
+  const contributionEveryCompound = contribution * (compound / freq);
+
+  let balance = initial;
+  let totalContributed = initial;
+  const yearly = [];
+
+  for(let y=1;y<=years;y++){
+    for(let p=0;p<compound;p++){
+      balance *= (1 + periodicRate);
+      const contributionThisPeriod = contributionEveryCompound / compound;
+      balance += contributionThisPeriod;
+      totalContributed += contributionThisPeriod;
+    }
+    yearly.push(balance);
+  }
+
+  const interest = Math.max(0,balance-totalContributed);
+  document.getElementById('final').textContent = euro(balance);
+  document.getElementById('invested').textContent = euro(totalContributed);
+  document.getElementById('interest').textContent = euro(interest);
+  document.getElementById('multiple').textContent = (totalContributed ? (balance/totalContributed).toFixed(2) : '0') + '×';
+  document.getElementById('annualized').textContent = rate.toFixed(1) + '%';
+
+  const chart = document.getElementById('chart');
+  const max = Math.max(...yearly,1);
+  chart.innerHTML = yearly.map((v,i)=>`<div class="bar" title="Anno ${i+1}: ${euro(v)}" style="height:${Math.max(2,(v/max)*100)}%"></div>`).join('');
+}
+
+function resetCalc(){
+  document.getElementById('initial').value=10000;
+  document.getElementById('contribution').value=300;
+  document.getElementById('frequency').value=12;
+  document.getElementById('rate').value=7;
+  document.getElementById('years').value=20;
+  document.getElementById('compound').value=12;
+  calculate();
+}
+
+function copyResult(){
+  const text = `Calcolatore interesse composto: capitale finale ${document.getElementById('final').textContent}`;
+  navigator.clipboard?.writeText(text);
+}
+
+async function shareResult(){
+  const data={title:'Calcolatore interesse composto',text:`Capitale finale stimato: ${document.getElementById('final').textContent}`};
+  if(navigator.share){try{await navigator.share(data)}catch(e){}}
+  else copyResult();
+}
+
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calculate));
+calculate();
+</script>
+</body>
+</html>

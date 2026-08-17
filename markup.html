@@ -1,13 +1,27 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Calcolatore markup | CalcQuantum</title><meta name="description" content="Calcola markup percentuale e prezzo di vendita."><meta name="robots" content="index,follow">
-<link rel="canonical" href="https://www.calcquantum.com/business/markup.html"><meta property="og:title" content="Calcolatore markup | CalcQuantum"><meta property="og:description" content="Calcola markup percentuale e prezzo di vendita."><meta property="og:type" content="website"><meta property="og:url" content="https://www.calcquantum.com/business/markup.html"><meta property="og:site_name" content="CalcQuantum">
-<link rel="stylesheet" href="../assets/styles.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Calcolatore markup", "url": "https://www.calcquantum.com/business/markup.html", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "description": "Calcola markup percentuale e prezzo di vendita."}</script></head><body><div class="wrap">
-<nav><a class="brand" href="../index.html">CalcQuantum</a><a href="../index.html">Tutti i calcolatori</a></nav>
-<div class="breadcrumb"><a href="../index.html">CalcQuantum</a> / Business e lavoro</div><header class="hero"><h1>Calcolatore markup</h1><p class="sub">Calcola markup e prezzo di vendita a partire dal costo.</p></header>
-<div class="grid"><section class="card"><h2>Inserisci i dati</h2><div class="field"><label for="cost">Costo (€)</label><input id="cost" type="number" step="0.01" value="70"></div><div class="field"><label for="price">Prezzo di vendita (€)</label><input id="price" type="number" step="0.01" value="100"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola</button><button onclick="resetCalc()">Ripristina</button></div></section>
-<section class="card"><h2>Risultato</h2><div id="results" class="results"></div></section></div>
-<section class="card"><h2>Informazioni</h2><p>Calcola markup percentuale e prezzo di vendita.</p><p class="note">I risultati sono calcoli teorici basati sui dati inseriti. Verifica sempre le ipotesi e le condizioni reali prima di prendere decisioni finanziarie, aziendali o tecniche.</p></section>
-<section class="card"><h2>Domande frequenti</h2><details><summary>I risultati sono una consulenza aziendale?</summary><p>No. Sono calcoli semplificati e non sostituiscono analisi contabili o finanziarie.</p></details><details><summary>Come viene calcolato?</summary><p>Il calcolatore applica la formula indicata in base ai parametri inseriti e mostra il risultato con arrotondamenti solo nella visualizzazione.</p></details></section>
-<section class="card"><h2>Altri strumenti di Business e lavoro</h2><ul class="tools"><li><a href="margine.html">Calcolatore margine</a></li><li><a href="break-even.html">Calcolatore break-even</a></li><li><a href="cac.html">Calcolatore CAC</a></li><li><a href="ltv.html">Calcolatore LTV</a></li></ul></section>
-<footer><a href="../privacy.html">Privacy</a> · CalcQuantum · Nessun account richiesto. I calcoli vengono eseguiti nel browser.</footer>
-</div><script>window.SLUG="markup";</script><script src="../assets/app.js"></script></body></html>
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcolatore markup | CalcQuantum</title>
+<meta name="description" content="Calcola il markup rispetto al costo e il profitto unitario.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://www.calcquantum.com/business/markup.html">
+<meta property="og:type" content="website"><meta property="og:title" content="Calcolatore markup | CalcQuantum"><meta property="og:description" content="Calcola il markup rispetto al costo e il profitto unitario."><meta property="og:url" content="https://www.calcquantum.com/business/markup.html"><meta property="og:site_name" content="CalcQuantum">
+<link rel="stylesheet" href="../assets/styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Calcolatore markup","url":"https://www.calcquantum.com/business/markup.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+</head>
+<body><div class="wrap">
+<nav><a class="brand" href="../index.html">CalcQuantum</a><div class="navlinks"><a href="../index.html">Tutti i calcolatori</a><a href="../business/">Categoria</a><a href="../privacy.html">Privacy</a></div></nav>
+<div class="breadcrumb"><a href="../index.html">CalcQuantum</a> / <a href="./">Business e lavoro</a> / Calcolatore markup</div>
+<header class="hero"><h1>Calcolatore markup</h1><p class="sub">Calcola il markup rispetto al costo e il profitto unitario. Inserisci i dati e ottieni il risultato direttamente nel browser.</p></header>
+<div class="grid">
+<section class="card"><h2>I tuoi dati</h2><div class="field"><label for="cost">Costo (€)</label><input id="cost" type="number" step="0.01" value="70"></div><div class="field"><label for="price">Prezzo di vendita (€)</label><input id="price" type="number" step="0.01" value="100"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola risultato</button><button onclick="resetCalc()">Ripristina</button></div></section>
+<section class="card result-panel"><h2>Risultato</h2><div id="results" class="results"></div></section>
+</div>
+<section class="card"><h2>Come interpretare il risultato</h2><p>Calcola il markup rispetto al costo e il profitto unitario.</p><p class="note">Il calcolo viene eseguito localmente nel browser. I valori visualizzati sono stime matematiche basate sui dati inseriti e sulle convenzioni indicate nello strumento.</p></section>
+<section class="card"><h2>Domande frequenti</h2><details open><summary>Il risultato sostituisce una decisione aziendale?</summary><p>No. È un calcolo quantitativo basato sui dati inseriti e non considera automaticamente tutti i costi, vincoli o dinamiche del business.</p></details><details><summary>Il calcolatore salva i dati inseriti?</summary><p>No. I dati del calcolo vengono elaborati localmente nel browser e non richiedono un account.</p></details></section>
+<section class="card"><h2>Altri strumenti di Business e lavoro</h2><ul class="tools"><li><a href="margine.html"><strong>Calcolatore margine</strong><small>Apri strumento</small></a></li><li><a href="break-even.html"><strong>Calcolatore break-even</strong><small>Apri strumento</small></a></li><li><a href="cac.html"><strong>Calcolatore CAC</strong><small>Apri strumento</small></a></li><li><a href="ltv.html"><strong>Calcolatore LTV</strong><small>Apri strumento</small></a></li></ul></section>
+<footer><a href="../privacy.html">Privacy</a> · CalcQuantum · Nessun account richiesto.</footer>
+</div>
+<script>window.SLUG="markup";</script><script src="../assets/app.js"></script>
+</body></html>

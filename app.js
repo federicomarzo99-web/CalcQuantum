@@ -1026,7 +1026,7 @@ function calculate(){
       case 'interesse-composto': {
         const f=Number(v.frequency), years=Math.max(0,v.years), final=fv(v.initial,v.contribution,f,v.rate,years);
         result([['Capitale finale',euro(final)],['Totale versato',euro(v.initial+v.contribution*f*years)],['Interessi generati',euro(final-v.initial-v.contribution*f*years)]],
-          'Modello: rendimento annuo effettivo convertito nel rendimento equivalente per periodo; versamenti alla fine di ogni periodo.');
+          'Modello: rendimento annuo effettivo convertito nel rendimento equivalente alla frequenza scelta; versamenti alla fine di ogni periodo.');
         break;
       }
       case 'inflazione': {
@@ -1053,7 +1053,7 @@ function calculate(){
       case 'runway': { const months=v.burn>0?v.cash/v.burn:Infinity; result([['Runway',isFinite(months)?`${num(months)} mesi`:'Indefinita'],['Cassa disponibile',euro(v.cash)],['Burn mensile',euro(v.burn)]], 'Runway semplificata = cassa disponibile / burn mensile.'); break; }
       case 'ohm': {
         let out;
-        if(v.mode==='V') out=[['Tensione',euro(v.i*v.r).replace('€','V')],['Formula','V = I × R']];
+        if(v.mode==='V') out=[['Tensione',`${num(v.i*v.r)} V`],['Formula','V = I × R']];
         else if(v.mode==='I') out=[['Corrente',`${num(v.v/v.r)} A`],['Formula','I = V / R']];
         else out=[['Resistenza',`${num(v.v/v.i)} Ω`],['Formula','R = V / I']];
         result(out); break;

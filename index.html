@@ -81,15 +81,7 @@
           <input id="years" type="number" min="1" max="100" step="1" value="20">
         </div>
       </div>
-      <div class="field">
-        <label for="compound">Capitalizzazione</label>
-        <select id="compound">
-          <option value="12">Mensile</option>
-          <option value="4">Trimestrale</option>
-          <option value="1">Annuale</option>
-        </select>
-      </div>
-      <p class="note">Il calcolo è una simulazione matematica e non considera tasse, costi, inflazione o variazioni future del rendimento.</p>
+      <p class="note">Il rendimento inserito è interpretato come <strong>rendimento annuo effettivo</strong>. I versamenti vengono effettuati alla fine di ogni periodo scelto. Il calcolo non considera tasse, costi, inflazione o variazioni future del rendimento.</p>
       <div class="actions">
         <button class="primary" onclick="calculate()">Calcola</button>
         <button onclick="resetCalc()">Ripristina</button>
@@ -106,7 +98,7 @@
         <div class="stat"><b id="annualized">0%</b><span>Rendimento annuo inserito</span></div>
       </div>
       <div id="chart" class="chart" aria-label="Grafico crescita del capitale"></div>
-      <p class="formula">Formula base: capitale × (1 + rendimento)^tempo, integrata con i versamenti periodici.</p>
+      <p class="formula">Il rendimento annuo viene convertito nel rendimento mensile equivalente; i versamenti sono aggiunti alla fine della rispettiva frequenza.</p>
       <div class="actions">
         <button onclick="copyResult()">Copia risultato</button>
         <button onclick="shareResult()">Condividi</button>
@@ -137,38 +129,64 @@ function calculate(){
   const initial = Math.max(0, Number(document.getElementById('initial').value)||0);
   const contribution = Math.max(0, Number(document.getElementById('contribution').value)||0);
   const freq = Number(document.getElementById('frequency').value);
-  const rate = Number(document.getElementById('rate').value)||0;
-  const years = Math.max(1, Number(document.getElementById('years').value)||1);
-  const compound = Number(document.getElementById('compound').value);
+  const annualRate = Number(document.getElementById('rate').value)||0;
+  const years = Math.max(1, Math.min(100, Number(document.getElementById('years').value)||1));
 
-  const periods = years * compound;
-  const periodicRate = rate / 100 / compound;
-  const contributionEveryCompound = contribution * (compound / freq);
+  /*
+    Mathematical convention:
+    - annualRate is an effective annual return.
+    - The equivalent monthly effective rate is used as the calculation base:
+        rm = (1 + annualRate)^(1/12) - 1
+    - Contributions are paid at the END of each selected period.
+    - This makes monthly/quarterly/annual contributions unambiguous and
+      mathematically consistent.
+    - Negative annual returns are supported down to -100%.
+  */
+  if (annualRate <= -100){
+    document.getElementById('final').textContent = euro(0);
+    document.getElementById('invested').textContent = euro(initial);
+    document.getElementById('interest').textContent = euro(-initial);
+    document.getElementById('multiple').textContent = '0×';
+    document.getElementById('annualized').textContent = annualRate.toFixed(1) + '%';
+    document.getElementById('chart').innerHTML = '';
+    return;
+  }
 
+  const monthlyRate = Math.pow(1 + annualRate/100, 1/12) - 1;
+  const monthsPerContribution = 12 / freq;
   let balance = initial;
   let totalContributed = initial;
   const yearly = [];
 
-  for(let y=1;y<=years;y++){
-    for(let p=0;p<compound;p++){
-      balance *= (1 + periodicRate);
-      const contributionThisPeriod = contributionEveryCompound / compound;
-      balance += contributionThisPeriod;
-      totalContributed += contributionThisPeriod;
+  for(let month=1; month<=years*12; month++){
+    balance *= (1 + monthlyRate);
+
+    // Contribution is made at the END of the chosen period.
+    if(month % monthsPerContribution === 0){
+      balance += contribution;
+      totalContributed += contribution;
     }
-    yearly.push(balance);
+
+    if(month % 12 === 0){
+      yearly.push(balance);
+    }
   }
 
-  const interest = Math.max(0,balance-totalContributed);
+  const interest = balance - totalContributed;
+
   document.getElementById('final').textContent = euro(balance);
   document.getElementById('invested').textContent = euro(totalContributed);
   document.getElementById('interest').textContent = euro(interest);
-  document.getElementById('multiple').textContent = (totalContributed ? (balance/totalContributed).toFixed(2) : '0') + '×';
-  document.getElementById('annualized').textContent = rate.toFixed(1) + '%';
+  document.getElementById('multiple').textContent =
+    (totalContributed > 0 ? (balance/totalContributed).toFixed(2) : '0') + '×';
+  document.getElementById('annualized').textContent = annualRate.toFixed(1) + '%';
 
   const chart = document.getElementById('chart');
-  const max = Math.max(...yearly,1);
-  chart.innerHTML = yearly.map((v,i)=>`<div class="bar" title="Anno ${i+1}: ${euro(v)}" style="height:${Math.max(2,(v/max)*100)}%"></div>`).join('');
+  const max = Math.max(...yearly.map(v => Math.max(v,0)), 1);
+  chart.innerHTML = yearly.map((v,i)=>{
+    const height = Math.max(2, (Math.max(v,0)/max)*100);
+    return `<div class="bar" title="Anno ${i+1}: ${euro(v)}" style="height:${height}%"></div>`;
+  }).join('');
 }
 
 function resetCalc(){
@@ -177,7 +195,6 @@ function resetCalc(){
   document.getElementById('frequency').value=12;
   document.getElementById('rate').value=7;
   document.getElementById('years').value=20;
-  document.getElementById('compound').value=12;
   calculate();
 }
 

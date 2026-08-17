@@ -92,6 +92,8 @@
       <div class="result-label">Capitale finale stimato</div>
       <div id="final" class="result">€0</div>
       <div class="stats">
+        <div class="stat"><b id="annualContribution">€0</b><span>Versamenti per anno</span></div>
+      
         <div class="stat"><b id="invested">€0</b><span>Totale versato</span></div>
         <div class="stat"><b id="interest">€0</b><span>Interessi generati</span></div>
         <div class="stat"><b id="multiple">0×</b><span>Moltiplicatore del capitale</span></div>
@@ -126,66 +128,75 @@
 const euro = n => new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
 
 function calculate(){
-  const initial = Math.max(0, Number(document.getElementById('initial').value)||0);
-  const contribution = Math.max(0, Number(document.getElementById('contribution').value)||0);
-  const freq = Number(document.getElementById('frequency').value);
-  const annualRate = Number(document.getElementById('rate').value)||0;
-  const years = Math.max(1, Math.min(100, Number(document.getElementById('years').value)||1));
+  const initial = Math.max(0, Number(document.getElementById('initial').value) || 0);
+  const contribution = Math.max(0, Number(document.getElementById('contribution').value) || 0);
+  const freq = Number(document.getElementById('frequency').value); // 12 monthly, 4 quarterly, 1 annual
+  const annualRate = Number(document.getElementById('rate').value) || 0;
+  const years = Math.max(1, Math.min(100, Number(document.getElementById('years').value) || 1));
 
-  /*
-    Mathematical convention:
-    - annualRate is an effective annual return.
-    - The equivalent monthly effective rate is used as the calculation base:
-        rm = (1 + annualRate)^(1/12) - 1
-    - Contributions are paid at the END of each selected period.
-    - This makes monthly/quarterly/annual contributions unambiguous and
-      mathematically consistent.
-    - Negative annual returns are supported down to -100%.
-  */
+  // EXACT MODEL:
+  // annualRate = effective annual return.
+  // freq = number of contributions per year.
+  // The equivalent effective return per contribution period is:
+  //     r = (1 + annualRate)^(1/freq) - 1
+  // Contributions are made at the END of each period.
+  // Therefore:
+  //     FV = P(1+r)^n + C[((1+r)^n - 1)/r]
+  // with the r=0 case handled separately.
   if (annualRate <= -100){
     document.getElementById('final').textContent = euro(0);
-    document.getElementById('invested').textContent = euro(initial);
-    document.getElementById('interest').textContent = euro(-initial);
+    document.getElementById('invested').textContent = euro(initial + contribution * freq * years);
+    document.getElementById('interest').textContent = euro(-(initial + contribution * freq * years));
     document.getElementById('multiple').textContent = '0×';
     document.getElementById('annualized').textContent = annualRate.toFixed(1) + '%';
+    document.getElementById('annualContribution').textContent = euro(contribution * freq);
     document.getElementById('chart').innerHTML = '';
     return;
   }
 
-  const monthlyRate = Math.pow(1 + annualRate/100, 1/12) - 1;
-  const monthsPerContribution = 12 / freq;
-  let balance = initial;
-  let totalContributed = initial;
-  const yearly = [];
+  const r = Math.pow(1 + annualRate / 100, 1 / freq) - 1;
+  const n = freq * years;
 
-  for(let month=1; month<=years*12; month++){
-    balance *= (1 + monthlyRate);
-
-    // Contribution is made at the END of the chosen period.
-    if(month % monthsPerContribution === 0){
-      balance += contribution;
-      totalContributed += contribution;
-    }
-
-    if(month % 12 === 0){
-      yearly.push(balance);
-    }
+  let finalValue;
+  if (Math.abs(r) < 1e-14) {
+    finalValue = initial + contribution * n;
+  } else {
+    finalValue =
+      initial * Math.pow(1 + r, n) +
+      contribution * ((Math.pow(1 + r, n) - 1) / r);
   }
 
-  const interest = balance - totalContributed;
+  const totalContributed = initial + contribution * n;
+  const interest = finalValue - totalContributed;
 
-  document.getElementById('final').textContent = euro(balance);
+  document.getElementById('final').textContent = euro(finalValue);
   document.getElementById('invested').textContent = euro(totalContributed);
   document.getElementById('interest').textContent = euro(interest);
   document.getElementById('multiple').textContent =
-    (totalContributed > 0 ? (balance/totalContributed).toFixed(2) : '0') + '×';
+    (totalContributed > 0 ? (finalValue / totalContributed).toFixed(2) : '0') + '×';
   document.getElementById('annualized').textContent = annualRate.toFixed(1) + '%';
+  document.getElementById('annualContribution').textContent = euro(contribution * freq);
+
+  // One point per year, calculated from the same exact formula.
+  const yearly = [];
+  for(let y = 1; y <= years; y++){
+    const periods = freq * y;
+    let value;
+    if (Math.abs(r) < 1e-14) {
+      value = initial + contribution * periods;
+    } else {
+      value =
+        initial * Math.pow(1 + r, periods) +
+        contribution * ((Math.pow(1 + r, periods) - 1) / r);
+    }
+    yearly.push(value);
+  }
 
   const chart = document.getElementById('chart');
-  const max = Math.max(...yearly.map(v => Math.max(v,0)), 1);
-  chart.innerHTML = yearly.map((v,i)=>{
-    const height = Math.max(2, (Math.max(v,0)/max)*100);
-    return `<div class="bar" title="Anno ${i+1}: ${euro(v)}" style="height:${height}%"></div>`;
+  const max = Math.max(...yearly.map(v => Math.max(v, 0)), 1);
+  chart.innerHTML = yearly.map((v, i) => {
+    const height = Math.max(2, Math.max(v, 0) / max * 100);
+    return `<div class="bar" title="Anno ${i + 1}: ${euro(v)}" style="height:${height}%"></div>`;
   }).join('');
 }
 

@@ -1031,7 +1031,7 @@ function calculate(){
       }
       case 'inflazione': {
         const future=v.price*Math.pow(1+v.inflation/100,v.years), power=v.price/Math.pow(1+v.inflation/100,v.years);
-        result([['Prezzo futuro equivalente',euro(future)],['Potere d’acquisto di €100',euro(100/Math.pow(1+v.inflation/100,v.years))],['Perdita di potere d’acquisto',pct(100-power/v.price*100)]]);
+        result([['Prezzo futuro equivalente',euro(future)],['Potere d’acquisto di '+euro(v.price),euro(power)],['Perdita di potere d’acquisto',pct(100-power/v.price*100)]]);
         break;
       }
       case 'roi': { const roi=(v.final-v.investment)/v.investment*100; result([['ROI',pct(roi)],['Profitto / perdita',euro(v.final-v.investment)]], 'ROI = (valore finale − investimento iniziale) / investimento iniziale.'); break; }

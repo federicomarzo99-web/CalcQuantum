@@ -1,27 +1,174 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Calcolatore FIRE | CalcQuantum</title>
-<meta name="description" content="Stima il patrimonio necessario per sostenere le spese con un tasso di prelievo scelto.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcolatore FIRE: quando raggiungerai l'indipendenza finanziaria? | CalcQuantum</title>
+<meta name="description" content="Calcola tra quanti anni potresti raggiungere il FIRE in base a età, patrimonio, entrate, spese e rendimento atteso.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://www.calcquantum.com/fire.html">
-<meta property="og:type" content="website"><meta property="og:title" content="Calcolatore FIRE | CalcQuantum"><meta property="og:description" content="Stima il patrimonio necessario per sostenere le spese con un tasso di prelievo scelto."><meta property="og:url" content="https://www.calcquantum.com/finanza/fire.html"><meta property="og:site_name" content="CalcQuantum">
 <link rel="stylesheet" href="styles.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Calcolatore FIRE","url":"https://www.calcquantum.com/finanza/fire.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
 </head>
-<body><div class="wrap">
-<nav><a class="brand" href="index.html">CalcQuantum</a><div class="navlinks"><a href="index.html">Tutti i calcolatori</a><a href="index.html#strumenti">Calcolatori</a><a href="privacy.html">Privacy</a></div></nav>
-<div class="breadcrumb"><a href="index.html">CalcQuantum</a> / <a href="./">Finanza personale</a> / Calcolatore FIRE</div>
-<header class="hero"><h1>Calcolatore FIRE</h1><p class="sub">Stima il patrimonio necessario per sostenere le spese con un tasso di prelievo scelto. Inserisci i dati e ottieni il risultato direttamente nel browser.</p></header>
-<div class="grid">
-<section class="card"><h2>I tuoi dati</h2><div class="field"><label for="expenses">Spese annuali (€)</label><input id="expenses" type="number" step="0.01" value="24000"></div><div class="field"><label for="swr">Tasso di prelievo (%)</label><input id="swr" type="number" step="0.01" value="4"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola risultato</button><button onclick="resetCalc()">Ripristina</button></div></section>
-<section class="card result-panel"><h2>Risultato</h2><div id="results" class="results"></div></section>
+<body>
+<div class="wrap">
+<nav>
+  <a class="brand" href="index.html">CalcQuantum</a>
+  <div class="navlinks"><a href="finanza.html">Finanza</a><a href="index.html">Tutti i calcolatori</a><a href="privacy.html">Privacy</a></div>
+</nav>
+
+<div class="breadcrumb"><a href="index.html">CalcQuantum</a> / <a href="finanza.html">Finanza personale</a> / Calcolatore FIRE</div>
+
+<header class="hero">
+  <div class="category-eyebrow">Finanza personale</div>
+  <h1>Quando raggiungerai il FIRE?</h1>
+  <p class="sub">Scopri quanti anni ti separano dall'indipendenza finanziaria partendo dalla tua situazione attuale. Pochi dati, un risultato chiaro.</p>
+</header>
+
+<section class="card calculator-card">
+  <div class="calc-grid">
+    <div>
+      <label for="age">Età attuale</label>
+      <input id="age" type="number" min="16" max="100" step="1" value="30" inputmode="numeric">
+    </div>
+    <div>
+      <label for="capital">Patrimonio investibile attuale (€)</label>
+      <input id="capital" type="number" min="0" step="1000" value="50000" inputmode="decimal">
+    </div>
+    <div>
+      <label for="income">Entrate nette mensili (€)</label>
+      <input id="income" type="number" min="0" step="100" value="2500" inputmode="decimal">
+    </div>
+    <div>
+      <label for="expenses">Spese mensili (€)</label>
+      <input id="expenses" type="number" min="0" step="100" value="1500" inputmode="decimal">
+    </div>
+  </div>
+
+  <details class="advanced">
+    <summary>Impostazioni avanzate</summary>
+    <div class="calc-grid advanced-grid">
+      <div>
+        <label for="fireExpenses">Spese mensili durante il FIRE (€)</label>
+        <input id="fireExpenses" type="number" min="0" step="100" placeholder="Uguali alle spese attuali">
+        <small>Se lasci vuoto, vengono usate le spese mensili attuali.</small>
+      </div>
+      <div>
+        <label for="returnRate">Rendimento medio annuo (%)</label>
+        <input id="returnRate" type="number" min="-20" max="30" step="0.1" value="5">
+      </div>
+      <div>
+        <label for="inflation">Inflazione annua (%)</label>
+        <input id="inflation" type="number" min="0" max="20" step="0.1" value="2">
+      </div>
+      <div>
+        <label for="swr">Tasso di prelievo (%)</label>
+        <input id="swr" type="number" min="1" max="10" step="0.1" value="4">
+        <small>Il 4% implica un obiettivo pari a circa 25 volte le spese annuali.</small>
+      </div>
+    </div>
+  </details>
+
+  <button id="calculate" class="primary" type="button">Calcola il mio FIRE</button>
+
+  <div id="error" class="calc-error" role="alert" hidden></div>
+  <div id="result" class="fire-result" hidden>
+    <div class="result-kicker">Il tuo obiettivo FIRE</div>
+    <div id="headline" class="fire-headline"></div>
+    <div class="result-sub" id="resultSub"></div>
+
+    <div class="result-grid">
+      <div><span>Target FIRE</span><strong id="target"></strong></div>
+      <div><span>Patrimonio previsto</span><strong id="future"></strong></div>
+      <div><span>Risparmio mensile</span><strong id="saving"></strong></div>
+      <div><span>Tasso di risparmio</span><strong id="savingRate"></strong></div>
+    </div>
+
+    <div class="result-note" id="incomeResult"></div>
+  </div>
+</section>
+
+<section class="card info-card">
+  <h2>Come funziona</h2>
+  <p>Il calcolatore stima il momento in cui il tuo patrimonio investibile raggiunge il capitale necessario a sostenere le spese previste nel FIRE.</p>
+  <p>Il target viene calcolato dividendo le spese annuali previste per il tasso di prelievo scelto. Con un tasso del 4%, per esempio, il target equivale a circa 25 volte le spese annuali. Questa è una regola orientativa, non una garanzia di rendimento o di durata del capitale.</p>
+</section>
+
+<footer><a href="finanza.html">Finanza personale</a> · <a href="index.html">Tutti i calcolatori</a> · <a href="privacy.html">Privacy</a> · CalcQuantum</footer>
 </div>
-<section class="card"><h2>Come interpretare il risultato</h2><p>Stima il patrimonio necessario per sostenere le spese con un tasso di prelievo scelto.</p><p class="note">Il calcolo viene eseguito localmente nel browser. I valori visualizzati sono stime matematiche basate sui dati inseriti e sulle convenzioni indicate nello strumento.</p></section>
-<section class="card"><h2>Domande frequenti</h2><details open><summary>Il risultato è una previsione?</summary><p>No. È una stima matematica basata sulle ipotesi inserite; rendimenti, inflazione, tasse e condizioni reali possono differire.</p></details><details><summary>Il calcolatore salva i dati inseriti?</summary><p>No. I dati del calcolo vengono elaborati localmente nel browser e non richiedono un account.</p></details></section>
-<section class="card"><h2>Altri strumenti di Finanza personale</h2><ul class="tools"><li><a href="interesse-composto.html"><strong>Calcolatore interesse composto</strong><small>Apri strumento</small></a></li><li><a href="inflazione.html"><strong>Calcolatore inflazione</strong><small>Apri strumento</small></a></li><li><a href="roi.html"><strong>Calcolatore ROI</strong><small>Apri strumento</small></a></li><li><a href="rendimento-reale.html"><strong>Calcolatore rendimento reale</strong><small>Apri strumento</small></a></li></ul></section>
-<footer><a href="privacy.html">Privacy</a> · CalcQuantum · Nessun account richiesto.</footer>
-</div>
-<script>window.SLUG="fire";</script><script src="app.js"></script>
-</body></html>
+
+<script>
+(function(){
+  const € = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+  const n = id => Number(document.getElementById(id).value);
+  const out = id => document.getElementById(id);
+  const fmt = x => €.format(Math.max(0,x));
+
+  function calculate(){
+    const age=n('age'), capital=n('capital'), income=n('income'), expenses=n('expenses');
+    const fireInput=document.getElementById('fireExpenses').value.trim();
+    const fireExpenses=fireInput==='' ? expenses : n('fireExpenses');
+    const nominalReturn=n('returnRate')/100, inflation=n('inflation')/100, swr=n('swr')/100;
+    const error=out('error'), result=out('result');
+    error.hidden=true; result.hidden=true;
+
+    if(![age,capital,income,expenses,fireExpenses,nominalReturn,inflation,swr].every(Number.isFinite) ||
+       age<16 || capital<0 || income<0 || expenses<0 || fireExpenses<0 || swr<=0){
+      error.textContent='Controlla i valori inseriti.';
+      error.hidden=false; return;
+    }
+    const saving=income-expenses;
+    if(saving<=0){
+      error.textContent='Con le entrate e le spese indicate non hai un risparmio mensile positivo. Riduci le spese o aumenta le entrate per stimare un percorso verso il FIRE.';
+      error.hidden=false; return;
+    }
+
+    // Work in real (inflation-adjusted) euros: avoids applying inflation twice.
+    const realReturn=(1+nominalReturn)/(1+inflation)-1;
+    const target=fireExpenses*12/swr;
+
+    if(capital>=target){
+      out('headline').textContent='Hai già raggiunto il FIRE.';
+      out('resultSub').textContent='Il tuo patrimonio attuale supera il capitale obiettivo con le ipotesi inserite.';
+      out('target').textContent=fmt(target);
+      out('future').textContent=fmt(capital);
+      out('saving').textContent=fmt(saving);
+      out('savingRate').textContent=(saving/income*100).toFixed(1).replace('.',',')+'%';
+      out('incomeResult').textContent='Prelievo iniziale indicativo al tasso scelto: '+fmt(capital*swr)+' all’anno.';
+      result.hidden=false; return;
+    }
+
+    // Annual compounding with monthly contributions approximated as annual contributions.
+    // We use a monthly real rate for the accumulation and monthly contributions.
+    const monthlyRate=Math.pow(1+realReturn,1/12)-1;
+    let balance=capital, months=0, maxMonths=1200;
+    while(balance<target && months<maxMonths){
+      balance=balance*(1+monthlyRate)+saving;
+      months++;
+    }
+
+    if(months>=maxMonths){
+      error.textContent='Con queste ipotesi il target non viene raggiunto entro l'orizzonte massimo considerato.';
+      error.hidden=false; return;
+    }
+
+    const years=months/12;
+    const yearsRounded=Math.floor(years);
+    const remainingMonths=months-yearsRounded*12;
+    const reachedAge=age+years;
+    out('headline').textContent='Raggiungerai il FIRE a circa '+reachedAge.toFixed(1).replace('.',',')+' anni.';
+    out('resultSub').textContent='Tra circa '+yearsRounded+' anni e '+remainingMonths+' mesi, secondo le ipotesi inserite.';
+    out('target').textContent=fmt(target);
+    out('future').textContent=fmt(balance);
+    out('saving').textContent=fmt(saving);
+    out('savingRate').textContent=(saving/income*100).toFixed(1).replace('.',',')+'%';
+    out('incomeResult').textContent='Prelievo iniziale indicativo al tasso scelto: '+fmt(target*swr)+' all’anno.';
+    result.hidden=false;
+  }
+
+  document.getElementById('calculate').addEventListener('click',calculate);
+  document.querySelectorAll('input').forEach(x=>x.addEventListener('keydown',e=>{if(e.key==='Enter')calculate();}));
+  calculate();
+})();
+</script>
+</body>
+</html>

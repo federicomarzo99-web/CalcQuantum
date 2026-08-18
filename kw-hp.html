@@ -26,5 +26,40 @@
 <section class="card"><h2>Altri strumenti di Elettrico e ingegneria</h2><ul class="tools"><li><a href="ohm.html"><strong>Calcolatore legge di Ohm</strong><small>Apri strumento</small></a></li><li><a href="watt-volt-ampere.html"><strong>Calcolatore Watt Volt Ampere</strong><small>Apri strumento</small></a></li><li><a href="potenza-monofase.html"><strong>Calcolatore potenza monofase</strong><small>Apri strumento</small></a></li><li><a href="potenza-trifase.html"><strong>Calcolatore potenza trifase</strong><small>Apri strumento</small></a></li></ul></section>
 <footer><a href="privacy.html">Privacy</a> · CalcQuantum · Nessun account richiesto.</footer>
 </div>
-<script>window.SLUG="kw-hp";</script><script src="app.js"></script>
+<script>
+(function(){
+  const mode=document.getElementById('mode');
+  const value=document.getElementById('value');
+  const results=document.getElementById('results');
+  const button=document.querySelector('.primary');
+
+  function format(x){
+    return new Intl.NumberFormat('it-IT',{maximumFractionDigits:4}).format(x);
+  }
+
+  function calculate(){
+    const x=Number(value.value);
+    if(!Number.isFinite(x) || x<0){
+      results.innerHTML='<div class="result-card"><span>Errore</span><strong>Inserisci un valore di potenza valido.</strong></div>';
+      return;
+    }
+
+    if(mode.value==='kw'){
+      const hp=x*1.34102209;
+      results.innerHTML=
+        '<div class="result-card"><span>Horsepower (HP)</span><strong>'+format(hp)+' hp</strong></div>'+
+        '<p class="formula">HP = kW × 1,34102209</p>';
+    }else{
+      const kw=x/1.34102209;
+      results.innerHTML=
+        '<div class="result-card"><span>Potenza (kW)</span><strong>'+format(kw)+' kW</strong></div>'+
+        '<p class="formula">kW = HP ÷ 1,34102209</p>';
+    }
+  }
+
+  mode.addEventListener('change',calculate);
+  button.addEventListener('click',calculate);
+  calculate();
+})();
+</script>
 </body></html>

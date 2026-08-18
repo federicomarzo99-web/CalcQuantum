@@ -27,9 +27,9 @@
 <option value="rpm">Potenza + Coppia → RPM</option>
 </select></div>
 <p class="note" id="instruction">Inserisci potenza e giri. La coppia viene calcolata automaticamente.</p>
-<div class="field calc-field" data-for="torque"><label for="power">Potenza (kW)</label><input id="power" type="number" step="0.01" placeholder="Valore da inserire"></div>
-<div class="field calc-field" data-for="power"><label for="torque">Coppia (Nm)</label><input id="torque" type="number" step="0.01" placeholder="Valore da inserire"></div>
-<div class="field calc-field" data-for="rpm"><label for="rpm">Giri/min (RPM)</label><input id="rpm" type="number" step="1" placeholder="Valore da inserire"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola risultato</button><button type="button" id="reset">Ripristina</button></div></section>
+<div class="field calc-field" data-for="input"><label for="power">Potenza (kW)</label><input id="power" type="number" step="0.01" placeholder="Valore da inserire"></div>
+<div class="field calc-field" data-for="input"><label for="torque">Coppia (Nm)</label><input id="torque" type="number" step="0.01" placeholder="Valore da inserire"></div>
+<div class="field calc-field" data-for="rpm"><label for="rpm">Giri/min (RPM)</label><input id="rpm" type="number" step="1" placeholder="Valore da inserire"></div><div class="actions"><button class="primary" type="button">Calcola risultato</button><button type="button" id="reset">Ripristina</button></div></section>
 <section class="card result-panel"><h2>Risultato</h2><div id="results" class="results"></div></section>
 </div>
 <section class="card"><h2>Come interpretare il risultato</h2><p>Calcola la relazione tra potenza, coppia e velocità di rotazione.</p><p class="note">Il calcolo viene eseguito localmente nel browser. I valori visualizzati sono stime matematiche basate sui dati inseriti e sulle convenzioni indicate nello strumento.</p></section>
@@ -39,64 +39,90 @@
 </div>
 <script>
 (function(){
-  const mode=document.getElementById('mode');
-  const instruction=document.getElementById('instruction');
-  const fields=[...document.querySelectorAll('.calc-field')];
-  const out=document.getElementById('results');
+  const mode = document.getElementById('mode');
+  const power = document.getElementById('power');
+  const torque = document.getElementById('torque');
+  const rpm = document.getElementById('rpm');
+  const instruction = document.getElementById('instruction');
+  const out = document.getElementById('results');
+  const reset = document.getElementById('reset');
 
-  const labels={
-    torque:'Inserisci potenza e giri. La coppia viene calcolata automaticamente.',
-    power:'Inserisci coppia e giri. La potenza viene calcolata automaticamente.',
-    rpm:'Inserisci potenza e coppia. I giri vengono calcolati automaticamente.'
-  };
+  function fmt(x){
+    return new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(x);
+  }
 
-  function ui(){
-    const target=mode.value;
-    instruction.textContent=labels[target];
-    fields.forEach(function(field){
-      const calculated=field.dataset.for===target;
-      const input=field.querySelector('input');
-      field.classList.toggle('is-calculated',calculated);
-      input.disabled=calculated;
-      input.placeholder=calculated?'Calcolata automaticamente':'Valore da inserire';
-      if(calculated) input.value='';
+  function updateFields(){
+    const m = mode.value;
+
+    // torque = calculate torque from power + rpm
+    // power  = calculate power from torque + rpm
+    // rpm    = calculate rpm from power + torque
+    const calculated = m === 'torque' ? torque : (m === 'power' ? power : rpm);
+
+    [power,torque,rpm].forEach(function(input){
+      const isCalculated = input === calculated;
+      input.disabled = isCalculated;
+      input.value = isCalculated ? '' : input.value;
+      input.placeholder = isCalculated ? 'Calcolata automaticamente' : 'Valore da inserire';
+      input.parentElement.classList.toggle('is-calculated',isCalculated);
     });
+
+    if(m === 'torque'){
+      instruction.textContent='Inserisci potenza e giri. La coppia viene calcolata automaticamente.';
+    }else if(m === 'power'){
+      instruction.textContent='Inserisci coppia e giri. La potenza viene calcolata automaticamente.';
+    }else{
+      instruction.textContent='Inserisci potenza e coppia. I giri vengono calcolati automaticamente.';
+    }
+
     calculate();
   }
 
-  function n(id){ return Number(document.getElementById(id).value); }
-  function fmt(x){ return new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(x); }
-
   function calculate(){
-    const m=mode.value;
-    let html='';
-    if(m==='torque'){
-      const P=n('power'), R=n('rpm');
-      if(P>0 && R>0){
-        const T=9550*P/R;
+    const m = mode.value;
+    let html;
+
+    if(m === 'torque'){
+      const P = Number(power.value);
+      const R = Number(rpm.value);
+      if(P > 0 && R > 0){
+        const T = 9550 * P / R;
         html='<div class="result-card"><span>Coppia</span><strong>'+fmt(T)+' Nm</strong></div><p class="formula">T = 9550 × P / RPM</p>';
-      }else html='<div class="result-card"><span>Risultato</span><strong>Inserisci potenza e giri.</strong></div>';
-    }else if(m==='power'){
-      const T=n('torque'), R=n('rpm');
-      if(T>0 && R>0){
-        const P=T*R/9550;
+      }else{
+        html='<div class="result-card"><span>Risultato</span><strong>Inserisci potenza e giri.</strong></div>';
+      }
+    }else if(m === 'power'){
+      const T = Number(torque.value);
+      const R = Number(rpm.value);
+      if(T > 0 && R > 0){
+        const P = T * R / 9550;
         html='<div class="result-card"><span>Potenza</span><strong>'+fmt(P)+' kW</strong></div><p class="formula">P = T × RPM / 9550</p>';
-      }else html='<div class="result-card"><span>Risultato</span><strong>Inserisci coppia e giri.</strong></div>';
+      }else{
+        html='<div class="result-card"><span>Risultato</span><strong>Inserisci coppia e giri.</strong></div>';
+      }
     }else{
-      const P=n('power'), T=n('torque');
-      if(P>0 && T>0){
-        const R=9550*P/T;
+      const P = Number(power.value);
+      const T = Number(torque.value);
+      if(P > 0 && T > 0){
+        const R = 9550 * P / T;
         html='<div class="result-card"><span>Giri/min (RPM)</span><strong>'+fmt(R)+' RPM</strong></div><p class="formula">RPM = 9550 × P / T</p>';
-      }else html='<div class="result-card"><span>Risultato</span><strong>Inserisci potenza e coppia.</strong></div>';
+      }else{
+        html='<div class="result-card"><span>Risultato</span><strong>Inserisci potenza e coppia.</strong></div>';
+      }
     }
-    out.innerHTML=html;
+    out.innerHTML = html;
   }
 
-  mode.addEventListener('change',ui);
-  document.querySelectorAll('input').forEach(x=>x.addEventListener('input',calculate));
+  mode.addEventListener('change', updateFields);
+  [power,torque,rpm].forEach(function(input){ input.addEventListener('input',calculate); });
   document.querySelector('.primary').addEventListener('click',calculate);
-  document.getElementById('reset').addEventListener('click',function(){mode.value='torque';document.getElementById('power').value='';document.getElementById('torque').value='';document.getElementById('rpm').value='';ui();});
-  ui();
+  reset.addEventListener('click',function(){
+    power.value=''; torque.value=''; rpm.value='';
+    mode.value='torque';
+    updateFields();
+  });
+
+  updateFields();
 })();
 </script>
 </body></html>

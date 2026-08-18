@@ -9,13 +9,16 @@
 <meta property="og:type" content="website"><meta property="og:title" content="Calcolatore potenza trifase | CalcQuantum"><meta property="og:description" content="Calcola la potenza attiva di un sistema trifase con tensione concatenata."><meta property="og:url" content="https://www.calcquantum.com/elettrico/potenza-trifase.html"><meta property="og:site_name" content="CalcQuantum">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Calcolatore potenza trifase","url":"https://www.calcquantum.com/elettrico/potenza-trifase.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
-</head>
+<style>
+.validation-note{margin:8px 0 14px;color:var(--muted);font-size:11px;line-height:1.5}
+.invalid-field{border-color:#b64a4a!important;background:#fff8f8!important}
+</style></head>
 <body><div class="wrap">
 <nav><a class="brand" href="index.html">CalcQuantum</a><div class="navlinks"><a href="index.html">Tutti i calcolatori</a><a href="index.html#strumenti">Calcolatori</a><a href="privacy.html">Privacy</a></div></nav>
 <div class="breadcrumb"><a href="index.html">CalcQuantum</a> / <a href="./">Elettrico e ingegneria</a> / Calcolatore potenza trifase</div>
 <header class="hero"><h1>Calcolatore potenza trifase</h1><p class="sub">Calcola la potenza attiva di un sistema trifase con tensione concatenata. Inserisci i dati e ottieni il risultato direttamente nel browser.</p></header>
 <div class="grid">
-<section class="card"><h2>I tuoi dati</h2><div class="field"><label for="v">Tensione concatenata (V)</label><input id="v" type="number" step="0.01" value="400"></div><div class="field"><label for="i">Corrente (A)</label><input id="i" type="number" step="0.01" value="10"></div><div class="field"><label for="pf">Fattore di potenza (cosφ)</label><input id="pf" type="number" step="0.01" value="0.9"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola risultato</button><button onclick="resetCalc()">Ripristina</button></div></section>
+<section class="card"><h2>I tuoi dati</h2><div class="field"><label for="v">Tensione concatenata (V)</label><input id="v" type="number" step="0.01" value="400"></div><div class="field"><label for="i">Corrente (A)</label><input id="i" type="number" step="0.01" value="10"></div><div class="field"><label for="pf">Fattore di potenza (cosφ)</label><input id="pf" type="number" step="0.01" value="0.9"></div><p class="validation-note">Il fattore di potenza (cosφ) deve essere compreso tra 0 e 1. Se inserisci un valore fuori da questo intervallo, il risultato non viene calcolato.</p><div class="actions"><button class="primary" onclick="calculate()">Calcola risultato</button><button onclick="resetCalc()">Ripristina</button></div></section>
 <section class="card result-panel"><h2>Risultato</h2><div id="results" class="results"></div></section>
 </div>
 <section class="card"><h2>Come interpretare il risultato</h2><p>Calcola la potenza attiva di un sistema trifase con tensione concatenata.</p><p class="note">Il calcolo viene eseguito localmente nel browser. I valori visualizzati sono stime matematiche basate sui dati inseriti e sulle convenzioni indicate nello strumento.</p></section>

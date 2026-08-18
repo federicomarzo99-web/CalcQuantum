@@ -1031,7 +1031,7 @@ function calculate(){
       }
       case 'inflazione': {
         const future=v.price*Math.pow(1+v.inflation/100,v.years), power=v.price/Math.pow(1+v.inflation/100,v.years);
-        result([['Prezzo futuro equivalente',euro(future)],['Potere d’acquisto di '+euro(v.price),euro(power)],['Perdita di potere d’acquisto',pct(100-power/v.price*100)]]);
+        result([['Prezzo futuro equivalente',euro(future)],['Potere d’acquisto di €100',euro(100/Math.pow(1+v.inflation/100,v.years))],['Perdita di potere d’acquisto',pct(100-power/v.price*100)]]);
         break;
       }
       case 'roi': { const roi=(v.final-v.investment)/v.investment*100; result([['ROI',pct(roi)],['Profitto / perdita',euro(v.final-v.investment)]], 'ROI = (valore finale − investimento iniziale) / investimento iniziale.'); break; }
@@ -1065,16 +1065,34 @@ function calculate(){
         else out=[['Corrente',`${num(v.p/v.v)} A`],['Formula','I = P / V']];
         result(out); break;
       }
-      case 'potenza-monofase': result([['Potenza attiva',`${num(v.v*v.i*v.pf)} W`],['Potenza',`${num(v.v*v.i*v.pf/1000)} kW`]], 'P = V × I × cosφ.'); break;
-      case 'potenza-trifase': result([['Potenza attiva',`${num(Math.sqrt(3)*v.v*v.i*v.pf)} W`],['Potenza',`${num(Math.sqrt(3)*v.v*v.i*v.pf/1000)} kW`]], 'P = √3 × VLL × I × cosφ.'); break;
+      case 'potenza-monofase': {
+        if(!Number.isFinite(v.pf) || v.pf<0 || v.pf>1){
+          return result([['Errore','Il fattore di potenza (cosφ) deve essere compreso tra 0 e 1.']]);
+        }
+        result([['Potenza attiva',`${num(v.v*v.i*v.pf)} W`],['Potenza',`${num(v.v*v.i*v.pf/1000)} kW`]], 'P = V × I × cosφ.');
+        break;
+      }
+      case 'potenza-trifase': {
+        if(!Number.isFinite(v.pf) || v.pf<0 || v.pf>1){
+          return result([['Errore','Il fattore di potenza (cosφ) deve essere compreso tra 0 e 1.']]);
+        }
+        result([['Potenza attiva',`${num(Math.sqrt(3)*v.v*v.i*v.pf)} W`],['Potenza',`${num(Math.sqrt(3)*v.v*v.i*v.pf/1000)} kW`]], 'P = √3 × VLL × I × cosφ.');
+        break;
+      }
       case 'caduta-tensione': { const drop=2*v.length*v.current*v.rho/v.section, pctdrop=v.voltage?drop/v.voltage*100:0; result([['Caduta di tensione',`${num(drop)} V`],['Caduta percentuale',pct(pctdrop)],['Tensione al carico',`${num(v.voltage-drop)} V`]], 'Modello resistivo monofase/DC: ΔV = 2 × L × I × ρ / S.'); break; }
       case 'sezione-cavo': { const s=2*v.length*v.current*v.rho/v.drop; result([['Sezione teorica minima',`${num(s)} mm²`]], 'Stima resistiva monofase/DC. Il dimensionamento reale deve considerare portata, posa, temperatura, protezioni e norme applicabili.'); break; }
       case 'resistenza-cavo': { const r=v.rho*v.length/v.section; result([['Resistenza del conduttore',`${num(r)} Ω`]], 'R = ρ × L / S.'); break; }
-      case 'kw-hp': { const hp=v.value*1.34102209, kw=v.value/1.34102209; result(v.mode==='kw'?[['Horsepower',`${num(hp)} hp`]]:[['Kilowatt',`${num(kw)} kW`]], '1 kW ≈ 1,341022 hp.'); break; }
-      case 'coppia-potenza-rpm': {
-        if(v.mode==='power'){ const t=v.value1*9550/v.rpm; result([['Coppia',`${num(t)} Nm`]], 'T(Nm) = 9550 × P(kW) / RPM.');}
-        else if(v.mode==='torque'){ const p=v.value1*v.rpm/9550; result([['Potenza',`${num(p)} kW`]], 'P(kW) = T(Nm) × RPM / 9550.');}
-        else { const rpm=v.value1>0?9550*v.value2/v.value1:0; result([['RPM',`${num(rpm)} rpm`]], 'RPM = 9550 × P(kW) / T(Nm).');}
+      case 'kw-hp': {
+        if(!Number.isFinite(v.value) || v.value<0){
+          return result([['Errore','Inserisci un valore di potenza valido.']]);
+        }
+        if(v.mode==='kw'){
+          const hp=v.value*1.34102209;
+          result([['Horsepower',`${num(hp)} hp`]], '1 kW ≈ 1,341022 hp.');
+        }else{
+          const kw=v.value/1.34102209;
+          result([['Kilowatt',`${num(kw)} kW`]], '1 hp ≈ 0,745700 kW.');
+        }
         break;
       }
       case 'batteria': { const wh=v.load*v.hours/(v.eff/100), ah=wh/(v.voltage*(v.dod/100)); result([['Energia richiesta',`${num(wh)} Wh`],['Capacità teorica',`${num(ah)} Ah`]], 'Stima: energia / tensione / quota utilizzabile. Va aggiunto un margine progettuale.'); break; }
@@ -1098,6 +1116,22 @@ function calculate(){
       case 'data-futura': { const d=new Date(v.start+'T00:00:00'); d.setDate(d.getDate()+v.days); result([['Data risultante',d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})],['Giorni aggiunti',num(v.days)] ]); break; }
       case 'minuti-ore': { if(v.mode==='min-to-hm'){const mins=Math.max(0,v.value),h=Math.floor(mins/60),m=mins%60;result([['Conversione',`${h} h ${num(m)} min`],['Ore decimali',num(mins/60)]])} else result([['Minuti',num(v.value*60)] ]); break; }
       case 'giorni-settimane': { if(v.mode==='days-to-weeks') result([['Settimane',num(v.value/7)],['Giorni',num(v.value)] ]); else result([['Giorni',num(v.value*7)],['Settimane',num(v.value)] ]); break; }
+      case 'coppia-potenza-rpm': {
+        if(v.mode==='power'){
+          if(!Number.isFinite(v.value2) || !Number.isFinite(v.rpm) || v.rpm<=0) return result([['Errore','Inserisci coppia e un numero di giri maggiore di zero.']]);
+          const p=v.value2*v.rpm/9550;
+          result([['Potenza',`${num(p)} kW`],['Formula','P(kW) = T(Nm) × RPM / 9550']]);
+        } else if(v.mode==='torque'){
+          if(!Number.isFinite(v.value1) || !Number.isFinite(v.rpm) || v.rpm<=0) return result([['Errore','Inserisci potenza e un numero di giri maggiore di zero.']]);
+          const torque=v.value1*9550/v.rpm;
+          result([['Coppia',`${num(torque)} Nm`],['Formula','T(Nm) = 9550 × P(kW) / RPM']]);
+        } else {
+          if(!Number.isFinite(v.value1) || !Number.isFinite(v.value2) || v.value2<=0) return result([['Errore','Inserisci potenza e una coppia maggiore di zero.']]);
+          const rpm=9550*v.value1/v.value2;
+          result([['RPM',`${num(rpm)} rpm`],['Formula','RPM = 9550 × P(kW) / T(Nm)']]);
+        }
+        break;
+      }
     }
   }catch(e){ result([['Errore','Controlla i valori inseriti']]); console.error(e); }
 }

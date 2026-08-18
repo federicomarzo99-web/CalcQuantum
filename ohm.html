@@ -46,5 +46,44 @@
   mode.addEventListener('change',updateFields);
   updateFields();
 })();
-</script><script>window.SLUG="ohm";</script><script src="app.js"></script>
+</script><script>
+(function(){
+  const mode=document.getElementById('mode');
+  const fields={V:document.getElementById('v'),I:document.getElementById('i'),R:document.getElementById('r')};
+  const boxes={V:fields.V.closest('.three-way-field'),I:fields.I.closest('.three-way-field'),R:fields.R.closest('.three-way-field')};
+  const results=document.getElementById('results');
+  function updateFields(){
+    const target=mode.value;
+    Object.keys(fields).forEach(function(key){
+      const calculated=key===target;
+      fields[key].disabled=calculated;
+      fields[key].value=calculated?'':fields[key].value;
+      fields[key].placeholder=calculated?'Calcolata automaticamente':'Valore da inserire';
+      boxes[key].classList.toggle('is-calculated',calculated);
+    });
+    results.innerHTML='';
+  }
+  function val(key){return Number(fields[key].value);}
+  function show(label,value,formula){
+    results.innerHTML='<div class="result-card"><span>'+label+'</span><strong>'+value+'</strong></div><p class="formula">'+formula+'</p>';
+  }
+  window.calculate=function(){
+    const target=mode.value;
+    let V=val('V'), I=val('I'), R=val('R');
+    if(target==='V'){
+      if(!Number.isFinite(I)||!Number.isFinite(R)||R===0) return show('Errore','Inserisci corrente e una resistenza diversa da zero.','');
+      show('Tensione', (I*R).toLocaleString('it-IT',{maximumFractionDigits:4})+' V','V = I × R');
+    } else if(target==='I'){
+      if(!Number.isFinite(V)||!Number.isFinite(R)||R===0) return show('Errore','Inserisci tensione e una resistenza diversa da zero.','');
+      show('Corrente', (V/R).toLocaleString('it-IT',{maximumFractionDigits:4})+' A','I = V / R');
+    } else {
+      if(!Number.isFinite(V)||!Number.isFinite(I)||I===0) return show('Errore','Inserisci tensione e una corrente diversa da zero.','');
+      show('Resistenza', (V/I).toLocaleString('it-IT',{maximumFractionDigits:4})+' Ω','R = V / I');
+    }
+  };
+  window.resetCalc=function(){location.reload();};
+  mode.addEventListener('change',updateFields);
+  updateFields();
+})();
+</script>
 </body></html>

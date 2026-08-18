@@ -1,50 +1,79 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Calcolatore Watt Volt Ampere | CalcQuantum</title>
-<meta name="description" content="Calcola potenza, tensione o corrente con la relazione P = V × I.">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="https://www.calcquantum.com/watt-volt-ampere.html">
-<meta property="og:type" content="website"><meta property="og:title" content="Calcolatore Watt Volt Ampere | CalcQuantum"><meta property="og:description" content="Calcola potenza, tensione o corrente con la relazione P = V × I."><meta property="og:url" content="https://www.calcquantum.com/elettrico/watt-volt-ampere.html"><meta property="og:site_name" content="CalcQuantum">
-<link rel="stylesheet" href="styles.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Calcolatore Watt Volt Ampere","url":"https://www.calcquantum.com/elettrico/watt-volt-ampere.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
 <style>
-.three-way-help{margin:10px 0 16px}
-.three-way-field.is-calculated{opacity:.58}
-.three-way-field.is-calculated label::after{content:" · calcolata";font-weight:500;color:var(--muted)}
-.three-way-field.is-calculated input{background:#f5f6f8;cursor:not-allowed}
-</style></head>
-<body><div class="wrap">
-<nav><a class="brand" href="index.html">CalcQuantum</a><div class="navlinks"><a href="index.html">Tutti i calcolatori</a><a href="index.html#strumenti">Calcolatori</a><a href="privacy.html">Privacy</a></div></nav>
-<div class="breadcrumb"><a href="index.html">CalcQuantum</a> / <a href="./">Elettrico e ingegneria</a> / Calcolatore Watt Volt Ampere</div>
-<header class="hero"><h1>Calcolatore Watt Volt Ampere</h1><p class="sub">Calcola potenza, tensione o corrente con la relazione P = V × I. Inserisci i dati e ottieni il risultato direttamente nel browser.</p></header>
-<div class="grid">
-<section class="card"><h2>I tuoi dati</h2><div class="field"><label for="mode">Calcolare</label><select id="mode"><option value="P" selected>Potenza</option><option value="V" >Tensione</option><option value="I" >Corrente</option></select></div><p class="note three-way-help">Inserisci due valori. Il terzo viene calcolato automaticamente.</p><div class="field three-way-field" data-for="P"><label for="p">Potenza (W)</label><input id="p" type="number" step="0.01" placeholder="Valore da inserire"></div><div class="field three-way-field" data-for="V"><label for="v">Tensione (V)</label><input id="v" type="number" step="0.01" placeholder="Valore da inserire"></div><div class="field three-way-field" data-for="I"><label for="i">Corrente (A)</label><input id="i" type="number" step="0.01" placeholder="Valore da inserire"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola risultato</button><button onclick="resetCalc()">Ripristina</button></div></section>
-<section class="card result-panel"><h2>Risultato</h2><div id="results" class="results"></div></section>
+body{font-family:system-ui;margin:32px;max-width:720px}
+label{display:block;margin:14px 0 6px;font-weight:600}
+input,select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:16px;box-sizing:border-box}
+button{margin-top:20px;background:#111;color:#fff}
+.note{color:#666;font-size:14px;margin:8px 0 18px}
+.calc{opacity:.55}
+.result{margin-top:22px;padding:18px;border:1px solid #ddd;border-radius:12px}
+</style>
+</head>
+<body>
+<h1>Calcolatore Watt / Volt / Ampere</h1>
+<p class="note">Inserisci due valori. Il terzo viene calcolato automaticamente.</p>
+
+<label>Calcolare</label>
+<select id="mode" onchange="ui()">
+  <option value="P">Potenza (W)</option>
+  <option value="V">Tensione (V)</option>
+  <option value="I">Corrente (A)</option>
+</select>
+
+<div id="fp">
+<label>Potenza (W)</label>
+<input id="p" type="number" step="0.01">
 </div>
-<section class="card"><h2>Come interpretare il risultato</h2><p>Calcola potenza, tensione o corrente con la relazione P = V × I.</p><p class="note">Il calcolo viene eseguito localmente nel browser. I valori visualizzati sono stime matematiche basate sui dati inseriti e sulle convenzioni indicate nello strumento.</p></section>
-<section class="card"><h2>Domande frequenti</h2><details open><summary>Il risultato sostituisce un dimensionamento professionale?</summary><p>No. È una stima teorica. Per un impianto reale vanno considerate condizioni di posa, protezioni, temperature, norme e dati del costruttore.</p></details><details><summary>Il calcolatore salva i dati inseriti?</summary><p>No. I dati del calcolo vengono elaborati localmente nel browser e non richiedono un account.</p></details></section>
-<section class="card"><h2>Altri strumenti di Elettrico e ingegneria</h2><ul class="tools"><li><a href="ohm.html"><strong>Calcolatore legge di Ohm</strong><small>Apri strumento</small></a></li><li><a href="potenza-monofase.html"><strong>Calcolatore potenza monofase</strong><small>Apri strumento</small></a></li><li><a href="potenza-trifase.html"><strong>Calcolatore potenza trifase</strong><small>Apri strumento</small></a></li><li><a href="caduta-tensione.html"><strong>Calcolatore caduta di tensione</strong><small>Apri strumento</small></a></li></ul></section>
-<footer><a href="privacy.html">Privacy</a> · CalcQuantum · Nessun account richiesto.</footer>
+
+<div id="fv">
+<label>Tensione (V)</label>
+<input id="v" type="number" step="0.01">
 </div>
+
+<div id="fi">
+<label>Corrente (A)</label>
+<input id="i" type="number" step="0.01">
+</div>
+
+<button onclick="calc()">Calcola risultato</button>
+
+<div class="result" id="out">Seleziona la grandezza da calcolare.</div>
+
 <script>
-(function(){
-  const mode=document.getElementById('mode');
-  const fields=Array.from(document.querySelectorAll('.three-way-field'));
-  function updateFields(){
-    const target=mode.value.toUpperCase();
-    fields.forEach(function(field){
-      const calculated=field.dataset.for===target;
-      const input=field.querySelector('input');
-      field.classList.toggle('is-calculated',calculated);
-      input.disabled=calculated;
-      input.placeholder=calculated?'Calcolata automaticamente':'Valore da inserire';
-      if(calculated) input.value='';
-    });
+function ui(){
+  const m=mode.value;
+  [['P','fp','p'],['V','fv','v'],['I','fi','i']].forEach(([k,box,id])=>{
+    const calc=k===m;
+    document.getElementById(box).className=calc?'calc':'';
+    document.getElementById(id).disabled=calc;
+    if(calc) document.getElementById(id).value='';
+  });
+}
+function n(id){return Number(document.getElementById(id).value);}
+function calc(){
+  const m=mode.value;
+  let r='';
+  if(m==='P'){
+    const V=n('v'),I=n('i');
+    if(V<=0||I<=0){out.innerHTML='Inserisci tensione e corrente.';return;}
+    r=`<h2>${(V*I).toFixed(2)} W</h2><p>Formula: P = V × I</p>`;
+  }else if(m==='V'){
+    const P=n('p'),I=n('i');
+    if(P<=0||I<=0){out.innerHTML='Inserisci potenza e corrente.';return;}
+    r=`<h2>${(P/I).toFixed(2)} V</h2><p>Formula: V = P ÷ I</p>`;
+  }else{
+    const P=n('p'),V=n('v');
+    if(P<=0||V<=0){out.innerHTML='Inserisci potenza e tensione.';return;}
+    r=`<h2>${(P/V).toFixed(2)} A</h2><p>Formula: I = P ÷ V</p>`;
   }
-  mode.addEventListener('change',updateFields);
-  updateFields();
-})();
-</script><script>window.SLUG="watt-volt-ampere";</script><script src="app.js"></script>
-</body></html>
+  out.innerHTML=r;
+}
+ui();
+</script>
+</body>
+</html>

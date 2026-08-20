@@ -4,10 +4,28 @@
 <link rel="stylesheet" href="styles.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Calcolatore consumo elettrico", "url": "https://www.calcquantum.com/casa-energia/consumo-elettrico.html", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "description": "Stima consumo e costo elettrico di un apparecchio."}</script></head><body><div class="wrap">
 <nav><a class="brand" href="index.html">CalcQuantum</a><a href="index.html">Tutti i calcolatori</a></nav>
 <div class="breadcrumb"><a href="index.html">CalcQuantum</a> / Casa ed energia</div><header class="hero"><h1>Calcolatore consumo elettrico</h1><p class="sub">Calcola consumo energetico in kWh e costo stimato.</p></header>
-<div class="grid"><section class="card"><h2>Inserisci i dati</h2><div class="field"><label for="power">Potenza (W)</label><input id="power" type="number" step="0.01" value="1000"></div><div class="field"><label for="hours">Ore di utilizzo giornaliero</label><input id="hours" type="number" min="0" max="24" step="0.01" value="5"></div><div class="field"><label for="days">Giorni di utilizzo mensili</label><input id="days" type="number" min="0" max="31" step="0.01" value="30"></div><div class="field"><label for="price">Prezzo energia (€/kWh)</label><input id="price" type="number" step="0.01" value="0.25"></div><div class="actions"><button class="primary" onclick="calculate()">Calcola</button><button onclick="resetCalc()">Ripristina</button></div></section>
+<div class="grid"><section class="card"><h2>Inserisci i dati</h2><div class="field"><label for="power">Potenza (W)</label><input id="power" type="number" step="0.01" value="1000"></div><div class="field"><label for="hours">Ore di utilizzo giornaliero</label><input id="hours" type="number" min="0" max="24" step="0.01" value="5"></div><div class="field"><label for="days">Giorni di utilizzo mensili</label><input id="days" type="number" min="0" max="31" step="0.01" value="30"></div><div class="actions"><button class="primary" id="calculateBtn">Calcola</button><button id="resetBtn">Ripristina</button></div></section>
 <section class="card"><h2>Risultato</h2><div id="results" class="results"></div></section></div>
 <section class="card"><h2>Informazioni</h2><p>Stima consumo e costo elettrico di un apparecchio.</p><p class="note">I risultati sono calcoli teorici basati sui dati inseriti. Verifica sempre le ipotesi e le condizioni reali prima di prendere decisioni finanziarie, aziendali o tecniche.</p></section>
 <section class="card"><h2>Domande frequenti</h2><details><summary>Il risultato è una stima?</summary><p>Sì. Consumi, rese e costi reali dipendono dalle condizioni effettive dell'impianto, dell'abitazione e delle tariffe.</p></details><details><summary>Come viene calcolato?</summary><p>Il calcolatore applica la formula indicata in base ai parametri inseriti e mostra il risultato con arrotondamenti solo nella visualizzazione.</p></details></section>
 <section class="card"><h2>Altri strumenti di Casa ed energia</h2><ul class="tools"><li><a href="costo-apparecchio.html">Calcolatore costo energia apparecchio</a></li><li><a href="climatizzatore.html">Calcolatore consumo climatizzatore</a></li><li><a href="boiler.html">Calcolatore consumo boiler</a></li><li><a href="riscaldamento.html">Calcolatore costo riscaldamento</a></li></ul></section>
 <footer><a href="privacy.html">Privacy</a> · CalcQuantum · Nessun account richiesto. I calcoli vengono eseguiti nel browser.</footer>
-</div><script>window.SLUG="consumo-elettrico";</script><script src="app.js"></script></body></html>
+</div><script>
+(function(){
+const power=document.getElementById('power'),hours=document.getElementById('hours'),days=document.getElementById('days');
+const out=document.getElementById('results');
+function calc(){
+ const p=Number(power.value),h=Number(hours.value),d=Number(days.value);
+ if(!Number.isFinite(p)||p<0||!Number.isFinite(h)||h<0||h>24||!Number.isFinite(d)||d<0||d>31){
+   out.innerHTML='<div class="result-card"><span>Errore</span><strong>Inserisci ore di utilizzo tra 0 e 24 e giorni di utilizzo tra 0 e 31.</strong></div>'; return;
+ }
+ const kwh=p/1000*h*d;
+ out.innerHTML='<div class="result-card"><span>Consumo mensile</span><strong>'+new Intl.NumberFormat('it-IT',{maximumFractionDigits:2}).format(kwh)+' kWh</strong></div><p class="formula">Consumo = Potenza (kW) × ore/giorno × giorni/mese</p>';
+}
+function reset(){power.value=1000;hours.value=5;days.value=30;calc();}
+document.getElementById('calculateBtn').addEventListener('click',calc);
+document.getElementById('resetBtn').addEventListener('click',reset);
+[power,hours,days].forEach(x=>x.addEventListener('input',calc));
+calc();
+})();
+</script></body></html>
